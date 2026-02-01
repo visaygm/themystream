@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYStreamFILM - Platform Film Modern</title>
+    <style>
+        /* --- RESET & VARIABLES --- */
+        :root {
+            --bg-body: #141414;
+            --bg-card: #1f1f1f;
+            --bg-nav: rgba(20, 20, 20, 0.95);
+            --primary: #e50914; /* Merah a la Netflix */
+            --primary-hover: #b20710;
+            --text-main: #ffffff;
+            --text-secondary: #b3b3b3;
+            --radius: 8px;
+            --shadow: 0 4px 15px rgba(0,0,0,0.5);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; transition: var(--transition); }
+        ul { list-style: none; }
+        img { width: 100%; display: block; object-fit: cover; }
+        button { cursor: pointer; border: none; font-family: inherit; }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-nav);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--text-main);
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 80vh;
+            width: 100%;
+            position: relative;
+            background: url('https://picsum.photos/seed/hero1/1920/1080') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, var(--bg-body), transparent 50%),
+                        linear-gradient(to right, rgba(0,0,0,0.8), transparent 50%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            animation: fadeIn Up 1s ease;
+        }
+
+        .hero-tag {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .hero-desc {
+            color: #ddd;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border-radius: var(--radius);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background-color: rgba(109, 109, 110, 0.7);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(109, 109, 110, 0.4);
+        }
+
+        /* --- FILTERS --- */
+        .filter-section {
+            padding: 2rem 5%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box, .select-box {
+            padding: 0.6rem 1rem;
+            background-color: #000;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        .search-box:focus, .select-box:focus {
+            border-color: var(--primary);
+        }
+
+        /* --- MOVIE GRID --- */
+        .movie-section {
+            padding: 0 5% 4rem 5%;
+        }
+
+        .section-title {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 1rem;
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .movie-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        .poster-wrapper {
+            position: relative;
+            aspect-ratio: 2/3;
+            overflow: hidden;
+        }
+
+        .poster-wrapper img {
+            height: 100%;
+            transition: transform 0.5s ease;
+        }
+
+        .movie-card:hover .poster-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .card-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .movie-card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        .play-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+        }
+
+        .card-info {
+            padding: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .rating-badge {
+            color: #46d369; /* Hijau untuk rating tinggi */
+            font-weight: bold;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background-color: #000;
+            padding: 3rem 5%;
+            text-align: center;
+            color: var(--text-secondary);
+            margin-top: 2rem;
+        }
+
+        .social-links {
+            margin-bottom: 1rem;
+        }
+        .social-links a {
+            margin: 0 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        /* --- MODAL (DETAIL PAGE) --- */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: #181818;
+            width: 100%;
+            max-width: 900px;
+            border-radius: var(--radius);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.4s ease;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem; right: 1.5rem;
+            font-size: 2rem;
+            color: white;
+            background: none;
+            z-index: 10;
+        }
+
+        .modal-hero {
+            height: 350px;
+            position: relative;
+        }
+        
+        .modal-hero img {
+            height: 100%;
+            width: 100%;
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+        }
+
+        .modal-info {
+            padding: 0 2.5rem 2.5rem 2.5rem;
+            margin-top: -80px;
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-meta {
+            display: flex;
+            gap: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            align-items: center;
+        }
+
+        .match-score { color: #46d369; font-weight: bold; }
+        .age-rating { border: 1px solid #777; padding: 0 0.4rem; font-size: 0.8rem; }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .cast-list {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .cast-item {
+            background: #333;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .trailer-placeholder {
+            background: #000;
+            width: 100%;
+            aspect-ratio: 16/9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-secondary);
+            border-radius: var(--radius);
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .trailer-placeholder:hover {
+            background: #111;
+            color: white;
+        }
+
+        .trailer-btn {
+            font-size: 3rem;
+            color: var(--primary);
+        }
+
+        /* --- TOAST --- */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            z-index: 3000;
+        }
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            bottom: 50px;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none; /* Simplifikasi untuk demo */
+            }
+            .menu-toggle { display: block; }
+            
+            .hero { height: 60vh; }
+            .hero-title { font-size: 2rem; }
+            
+            .modal-content { max-width: 100%; margin: 0; height: 100%; border-radius: 0; overflow-y: auto; }
+            .modal-hero { height: 250px; }
+            .modal-grid { grid-template-columns: 1fr; }
+            
+            .filter-section { flex-direction: column; align-items: stretch; }
+            .filter-controls { flex-direction: column; }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes Up {
+            from { transform: translateY(20px); }
+            to { transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">STREAMFLIX</div>
+        <div class="nav-links">
+            <a href="#" class="active" onclick="window.location.reload()">Home</a>
+            <a href="#movies">Film</a>
+            <a href="#" onclick="showToast('Fitur Genre segera hadir!')">Genre</a>
+            <a href="#footer">Tentang</a>
+        </div>
+        <div class="menu-toggle" onclick="showToast('Menu Mobile belum aktif di demo ini')">&#9776;</div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-tag">Trending #1</div>
+            <h1 class="hero-title">Beyond The Galaxy</h1>
+            <p class="hero-desc">
+                Ketika sebuah pesan misterius dari galaksi yang jauh terdeteksi, seorang tim astronot elit harus melakukan perjalanan melewati wormhole berbahaya untuk menyelamatkan umat manusia dari kepunahan yang tak terelakkan.
+            </p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" onclick="openFeaturedMovie()">
+                    <span>&#9658;</span> Putar
+                </button>
+                <button class="btn btn-secondary" onclick="openFeaturedMovie()">
+                    <span>&#8505;</span> Info Selengkapnya
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- FILTERS -->
+        <section class="filter-section" id="movies">
+            <h2 class="section-title" style="margin:0; border:none; padding:0;">Telusuri Film</h2>
+            <div class="filter-controls">
+                <input type="text" id="searchInput" class="search-box" placeholder="Cari judul film...">
+                
+                <select id="genreFilter" class="select-box">
+                    <option value="all">Semua Genre</option>
+                    <option value="Action">Action</option>
+                    <option value="Drama">Drama</option>
+                    <option value="Sci-Fi">Sci-Fi</option>
+                    <option value="Horror">Horror</option>
+                    <option value="Comedy">Comedy</option>
+                </select>
+
+                <select id="yearFilter" class="select-box">
+                    <option value="all">Semua Tahun</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- MOVIE GRID -->
+        <section class="movie-section">
+            <div class="movie-grid" id="movieGrid">
+                <!-- Cards will be injected by JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer id="footer">
+        <div class="social-links">
+            <a href="#">Facebook</a> | <a href="#">Twitter</a> | <a href="#">Instagram</a>
+        </div>
+        <p>&copy; 2024 StreamFlix Indonesia. Hak Cipta Dilindungi.</p>
+        <p style="font-size: 0.8rem; margin-top: 0.5rem;">Proyek Demo Desain Web</p>
+    </footer>
+
+    <!-- MOVIE DETAIL MODAL -->
+    <div class="modal" id="movieModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            
+            <div class="modal-hero">
+                <img id="m-image" src="" alt="Backdrop">
+            </div>
+
+            <div class="modal-info">
+                <h1 class="modal-title" id="m-title">Judul Film</h1>
+                <div class="modal-meta">
+                    <span class="match-score" id="m-rating">98% Cocok</span>
+                    <span id="m-year">2024</span>
+                    <span class="age-rating">13+</span>
+                    <span id="m-duration">2j 15m</span>
+                    <span id="m-genre">Action</span>
+                </div>
+
+                <div class="modal-grid">
+                    <div>
+                        <h3 style="margin-bottom:0.5rem">Sinopsis</h3>
+                        <p style="color:#ccc; margin-bottom:1.5rem;" id="m-desc">
+                            Deskripsi film akan muncul di sini...
+                        </p>
+
+                        <div class="trailer-placeholder" onclick="playTrailer()">
+                            <div class="trailer-btn">&#9658;</div>
+                            <p>Tonton Trailer</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom:0.5rem">Sutradara</h3>
+                        <p style="color:#ccc; margin-bottom:1rem;" id="m-director">Nama Sutradara</p>
+                        
+                        <h3 style="margin-bottom:0.5rem">Pemeran</h3>
+                        <div class="cast-list" id="m-cast">
+                            <!-- Cast items -->
+                        </div>
+                        
+                        <button class="btn btn-primary" style="width:100%; margin-top:2rem;" onclick="showToast('Ditambahkan ke Daftar Tontonan')">
+                            + Daftar Tontonan Saya
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast" id="toast">
+        <span>&#10004;</span> <span id="toast-msg">Pesan</span>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // --- DATA DUMMY (MOCK DATA) ---
+        // Menggunakan seed picsum untuk gambar yang konsisten
+        const movies = [
+            {
+                id: 1,
+                title: "Beyond The Galaxy",
+                genre: "Sci-Fi",
+                rating: 4.8,
+                year: 2024,
+                duration: "2j 15m",
+                director: "Christopher Nolan",
+                cast: ["Matthew M.", "Anne H.", "Jessica C."],
+                desc: "Sebuah perjalanan epik melintasi lubang cacing untuk mencari rumah baru bagi umat manusia. Ketika Bumi menjadi tidak bisa dihuni, sekumpulan penjelajah harus menghadapi paradoks waktu dan ruang.",
+                image: "https://picsum.photos/seed/galaxy/300/450",
+                backdrop: "https://picsum.photos/seed/galaxy/800/400"
+            },
+            {
+                id: 2,
+                title: "The Silent Shadow",
+                genre: "Horror",
+                rating: 4.5,
+                year: 2023,
+                duration: "1j 45m",
+                director: "James Wan",
+                cast: ["Patrick W.", "Vera F.", "Madeline Z."],
+                desc: "Di sebuah desa terpencil yang diselimuti kabut, sebuah entitas kuno bangkit. Para penduduk mulai menghilang satu per satu, dan seorang detektif harus mengungkap rahasia kelam sebelum terlambat.",
+                image: "https://picsum.photos/seed/shadow/300/450",
+                backdrop: "https://picsum.photos/seed/shadow/800/400"
+            },
+            {
+                id: 3,
+                title: "Racing Hearts",
+                genre: "Action",
+                rating: 4.2,
+                year: 2024,
+                duration: "2j 05m",
+                director: "Joseph K.",
+                cast: ["Aaron P.", "Imogen P."],
+                desc: "Seorang pembalap muda yang berbakat namun arogan harus belajar arti kerja tim dan pengorbanan demi memenangkan kejuaraan dunia yang paling berbahaya.",
+                image: "https://picsum.photos/seed/racing/300/450",
+                backdrop: "https://picsum.photos/seed/racing/800/400"
+            },
+            {
+                id: 4,
+                title: "Laugh Out Loud",
+                genre: "Comedy",
+                rating: 3.9,
+                year: 2023,
+                duration: "1j 30m",
+                director: "Judd A.",
+                cast: ["Steve C.", "John C.", "Kristen W."],
+                desc: "Kumpulan kisah konyol sekelompok sahabat yang mencoba menyelamatkan bisnis kopi mereka dari kebangkrutan dengan cara-cara yang tidak terduga dan sangat lucu.",
+                image: "https://picsum.photos/seed/laugh/300/450",
+                backdrop: "https://picsum.photos/seed/laugh/800/400"
+            },
+            {
+                id: 5,
+                title: "The Last Kingdom",
+                genre: "Drama",
+                rating: 4.7,
+                year: 2022,
+                duration: "2j 30m",
+                director: "Peter W.",
+                cast: ["Alexander D.", "Emily C."],
+                desc: "Kisah perjuangan seorang raja muda untuk mempersatukan kerajaannya yang terpecah belah melawan invasi asing dan pengkhianatan dari dalam keluarganya sendiri.",
+                image: "https://picsum.photos/seed/kingdom/300/450",
+                backdrop: "https://picsum.photos/seed/kingdom/800/400"
+            },
+            {
+                id: 6,
+                title: "Cyber Punk 2099",
+                genre: "Sci-Fi",
+                rating: 4.6,
+                year: 2024,
+                duration: "2j 10m",
+                director: "Denis V.",
+                cast: ["Ryan G.", "Ana de A."],
+                desc: "Di masa depan di mana manusia dan mesin menyatu, seorang tentara bayaran menemukan rahasia yang dapat mengubah tatanan dunia selamanya.",
+                image: "https://picsum.photos/seed/cyber/300/450",
+                backdrop: "https://picsum.photos/seed/cyber/800/400"
+            },
+            {
+                id: 7,
+                title: "Deep Blue Mystery",
+                genre: "Drama",
+                rating: 4.3,
+                year: 2023,
+                duration: "1j 55m",
+                director: "James C.",
+                cast: ["Kate W.", "Leo D."],
+                desc: "Sebuah ekspedisi laut menemukan sesuatu yang seharusnya tidak ada di dasar samudra. Terungkaplah konspirasi global yang mengancam kehidupan laut.",
+                image: "https://picsum.photos/seed/blue/300/450",
+                backdrop: "https://picsum.photos/seed/blue/800/400"
+            },
+            {
+                id: 8,
+                title: "Urban Legend",
+                genre: "Horror",
+                rating: 3.8,
+                year: 2022,
+                duration: "1j 40m",
+                director: "Leigh W.",
+                cast: ["Neve C.", "Courteney C."],
+                desc: "Legenda urban kota tua ternyata nyata. Sekelompok remaja harus bertahan hidup dari malam yang paling mengerikan dalam hidup mereka.",
+                image: "https://picsum.photos/seed/urban/300/450",
+                backdrop: "https://picsum.photos/seed/urban/800/400"
+            }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const movieGrid = document.getElementById('movieGrid');
+        const searchInput = document.getElementById('searchInput');
+        const genreFilter = document.getElementById('genreFilter');
+        const yearFilter = document.getElementById('yearFilter');
+        const modal = document.getElementById('movieModal');
+
+        // --- INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMovies(movies);
+        });
+
+        // --- RENDER FUNCTION ---
+        function renderMovies(data) {
+            movieGrid.innerHTML = '';
+            
+            if(data.length === 0) {
+                movieGrid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#777;">Tidak ada film yang ditemukan.</p>';
+                return;
+            }
+
+            data.forEach(movie => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.onclick = () => openModal(movie);
+
+                card.innerHTML = `
+                    <div class="poster-wrapper">
+                        <img src="${movie.image}" alt="${movie.title}" loading="lazy">
+                        <div class="card-overlay">
+                            <div class="play-icon">&#9658;</div>
+                        </div>
+                    </div>
+                    <div class="card-info">
+                        <h3 class="card-title">${movie.title}</h3>
+                        <div class="card-meta">
+                            <span>${movie.year}</span>
+                            <span class="rating-badge">${movie.rating} &#9733;</span>
+                        </div>
+                        <div class="card-meta" style="margin-top:0.3rem; font-size:0.8rem; color:#888;">
+                            ${movie.genre}
+                        </div>
+                    </div>
+                `;
+                movieGrid.appendChild(card);
+            });
+        }
+
+        // --- FILTER LOGIC ---
+        function filterMovies() {
+            const query = searchInput.value.toLowerCase();
+            const genre = genreFilter.value;
+            const year = yearFilter.value;
+
+            const filtered = movies.filter(movie => {
+                const matchSearch = movie.title.toLowerCase().includes(query);
+                const matchGenre = genre === 'all' || movie.genre === genre;
+                const matchYear = year === 'all' || movie.year.toString() === year;
+                
+                return matchSearch && matchGenre && matchYear;
+            });
+
+            renderMovies(filtered);
+        }
+
+        // Event Listeners for Filters
+        searchInput.addEventListener('input', filterMovies);
+        genreFilter.addEventListener('change', filterMovies);
+        yearFilter.addEventListener('change', filterMovies);
+
+        // --- MODAL FUNCTIONS ---
+        function openModal(movie) {
+            // Populate Data
+            document.getElementById('m-image').src = movie.backdrop;
+            document.getElementById('m-title').textContent = movie.title;
+            document.getElementById('m-rating').textContent = Math.round(movie.rating * 20) + "% Cocok"; // Convert 5.0 to 100%
+            document.getElementById('m-year').textContent = movie.year;
+            document.getElementById('m-duration').textContent = movie.duration;
+            document.getElementById('m-genre').textContent = movie.genre;
+            document.getElementById('m-desc').textContent = movie.desc;
+            document.getElementById('m-director').textContent = movie.director;
+
+            // Render Cast
+            const castContainer = document.getElementById('m-cast');
+            castContainer.innerHTML = '';
+            movie.cast.forEach(actor => {
+                const span = document.createElement('span');
+                span.className = 'cast-item';
+                span.textContent = actor;
+                castContainer.appendChild(span);
+            });
+
+            // Show Modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Shortcut untuk Hero Button
+        function openFeaturedMovie() {
+            openModal(movies[0]); // Buka film pertama (Beyond The Galaxy)
+        }
+
+        function playTrailer() {
+            showToast("Memutar trailer... (Simulasi)");
+        }
+
+        // Close modal on outside click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // --- TOAST NOTIFICATION ---
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>
